@@ -54,17 +54,27 @@ void Restrict::deactivate(){}
 
 int Restrict::processMouseEvent(rviz::ViewportMouseEvent& event){
     int flag = 0;
+    static bool draw_allowed_flag = false;
     Ogre::Vector3 intersection;
     Ogre::Plane ground_plane( Ogre::Vector3::UNIT_Z, 0.0f );
     try
-    {
+    {  
+    	if (event.rightDown() == true){
+    		draw_allowed_flag = true;
+    	}
+    	if (event.rightUp() == true){
+    		draw_allowed_flag = false;
+    	}
+    
         if( rviz::getPointOnPlaneFromWindowXY( event.viewport, ground_plane, event.x, event.y, intersection ))
             {
-                point_.x = intersection.x;
-                point_.y = intersection.y;
-                point_.z = operation_;
-                pub_.publish(point_);
-                pub2_.publish(settings_);
+            	if (draw_allowed_flag == true){ // added by POJ , trying to draw only when LMB ist down
+                  point_.x = intersection.x;
+                  point_.y = intersection.y;
+                  point_.z = operation_;
+                  pub_.publish(point_);
+                  pub2_.publish(settings_);
+                }
             }
     }
     catch (int a)
